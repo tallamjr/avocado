@@ -33,12 +33,11 @@ avocado_featurize \\
     --tag {tag}
 """
 
-slurm_template = """
-#!/bin/bash
-#$ --export=ALL
-#$ --job-name={job_name}
-#$ -o {jobs_directory}/{job_name}.out
-#$ -e {jobs_directory}/{job_name}.err
+slurm_template = """#!/bin/bash
+#SBATCH --export=ALL
+#SBATCH -J {job_name}
+#SBATCH -o {jobs_directory}/{job_name}.out
+#SBATCH -e {jobs_directory}/{job_name}.err
 
 # Use a single core for each job. This parallelizes better than trying to use
 # multiple cores per job.
