@@ -12,5 +12,6 @@ setup(
     license='BSD',
     packages=['avocado'],
     data_files=[('', ['avocado_settings.json'])],
-    scripts=['scripts/' + f for f in os.listdir('scripts')],
+    exclude_package_data = {'': ['.gitignore', 'scripts/data/*']},
+    scripts=['scripts/' + f for f in os.listdir('scripts') if os.path.isfile(os.path.join('scripts', f))],
 )
