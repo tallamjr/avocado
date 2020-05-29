@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+"""Featurize a dataset using avocado"""
+
+import argparse
+from tqdm import tqdm
+import numpy as np
+
+import avocado
+
+
+def __load_dataset(dataset_name):
+
+    print("Loading dataset...")
+    dataset = avocado.load(dataset_name, metadata_only=True)
+    # In the PLAsTiCC test data, the class 99 objects are split out. Combine them back together.
+    dataset.metadata['raw_class'] = dataset.metadata['class']
+    dataset.metadata['class'] = np.clip(dataset.metadata['class'], None, 99)
+    return dataset
+
+
+def all_features_dataframe(dataset_name):
+
+    dataset = avocado.load(dataset_name)
+    dataframe = dataset.load_raw_features()
+    return dataframe
+
+
+def avocado_selected_features_with_labels(dataset_name):
+
+    dataset = avocado.load(dataset_name)
+    # Load the features if they have been computed.
+    try:
+        dataset.load_raw_features()
+        dataframe = dataset.select_features(avocado.plasticc.PlasticcFeaturizer())
+    except avocado.AvocadoException:
+        print("Training set features not available! Some functionality will be missing!")
+
+    dataset = __load_dataset(dataset_name)
+    dataframe['class'] = dataset.metadata['class']
+
+    return dataframe
+
+
+def filter_dataframe(object_list_filename, dataframe):
+
+    plasticc_object_list = np.genfromtxt(object_list_filename, dtype='U')
+
+    filtered_dataframe = dataframe[dataframe.index.isin(plasticc_object_list)]
+    return filtered_dataframe
